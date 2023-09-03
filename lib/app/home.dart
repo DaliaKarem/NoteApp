@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:noteapp/app/Notes/EditNotes.dart';
+import 'package:noteapp/component/cardnote.dart';
+import 'package:noteapp/component/crud.dart';
+import 'package:noteapp/constant/linkapi.dart';
 import 'package:noteapp/main.dart';
 
 class Home extends StatefulWidget {
@@ -9,6 +13,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  crud _crud=crud();
+ gatnotes()async{
+   var res=await _crud.postReq(linkview, {
+     "id": sharedPreferences.getString("id")
+   });
+   return res;
+ }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,39 +31,55 @@ class _HomeState extends State<Home> {
         }, icon: Icon(Icons.exit_to_app))
       ],),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).pushNamed("addNotes");
+        },
         child: Icon(Icons.add),
       ),
       body: Container(
         padding: EdgeInsets.all(10),
         child: ListView(
           children: [
-            InkWell(
-              onTap: (){
+            FutureBuilder(
+                future:gatnotes() ,
+                builder: (BuildContext context, AsyncSnapshot snap ){
+              if(snap.hasData)
+                {
+                if(snap.data['status']=='fail')
+                  {
+                    return Center(child: Text("No Notes"));
 
-              },
-              child: Card(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                        flex: 1,
-                        child: Image.network(
-                          "https://icons-for-free.com/iconfiles/png/512/cloud+upload+file+storage+upload+icon-1320190558968694328.png",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.fill,
-                        )),
-                    Expanded(
-                        flex: 2,
-                        child: ListTile(
-                          title: Text("title"),
-                          subtitle: Text("content"),
-                        ))
-                  ],
-                ),
-              ),
-            )
+                  }
+                else{
+                  return ListView.builder(
+                      itemCount: snap.data['data'].length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context,i){
+                        return cardnote(ontap:(){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                           return editNotes(notes:snap.data['data'][i] ,);
+                          }));
+                        }, title: snap.data['data'][i]['notes_title'], content: snap.data['data'][i]['notes_content'], ondelete: () async{
+                          var res=await _crud.postReq(linkdelete, {"id":snap.data['data'][i]['notes_id'].toString()});
+                          if(res['status']=="Success")
+                            {
+                              Navigator.of(context).pushReplacementNamed("home");
+                            }
+                          else{
+                            print("error");
+                          }
+                        },);}
+                  );
+                }
+                }
+              if(snap.connectionState==ConnectionState.waiting)
+                {
+                  return Center(child: CircularProgressIndicator(),);
+                }
+              return Text("Loading............");
+
+                })
           ],
         ),
       ),

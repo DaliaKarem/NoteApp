@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:noteapp/app/Notes/EditNotes.dart';
+import 'package:noteapp/app/Notes/addNotes.dart';
 import 'package:noteapp/app/auth/Success.dart';
 import 'package:noteapp/app/auth/login.dart';
 import 'package:noteapp/app/auth/signup.dart';
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
         "signup":(context)=>SignUp(),
         "home":(context)=>Home(),
         "success":(context)=>Success(),
+        "addNotes":(context)=>addNotes(),
+        "editNotes":(context)=>editNotes(),
       },
     );
   }
