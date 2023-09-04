@@ -4,6 +4,7 @@ import 'package:noteapp/component/cardnote.dart';
 import 'package:noteapp/component/crud.dart';
 import 'package:noteapp/constant/linkapi.dart';
 import 'package:noteapp/main.dart';
+import 'package:noteapp/model/noteModel.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -60,8 +61,8 @@ class _HomeState extends State<Home> {
                           Navigator.of(context).push(MaterialPageRoute(builder: (context){
                            return editNotes(notes:snap.data['data'][i] ,);
                           }));
-                        }, title: snap.data['data'][i]['notes_title'], content: snap.data['data'][i]['notes_content'], ondelete: () async{
-                          var res=await _crud.postReq(linkdelete, {"id":snap.data['data'][i]['notes_id'].toString()});
+                        },  ondelete: () async{
+                          var res=await _crud.postReq(linkdelete, {"id":snap.data['data'][i]['notes_id'].toString(),"imgname":snap.data['data'][i]['notes_img'].toString()});
                           if(res['status']=="Success")
                             {
                               Navigator.of(context).pushReplacementNamed("home");
@@ -69,7 +70,7 @@ class _HomeState extends State<Home> {
                           else{
                             print("error");
                           }
-                        },);}
+                        }, note:Note.fromJson(snap.data['data'][i]) ,);}
                   );
                 }
                 }

@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:noteapp/component/crud.dart';
 import 'package:noteapp/component/customtextform.dart';
 import 'package:noteapp/component/valid.dart';
@@ -18,16 +22,24 @@ class _addNotesState extends State<addNotes> {
   GlobalKey<FormState> formstate = GlobalKey();
   crud _crud = crud();
   bool loading = false;
+  File? file;
 
   addNotes() async {
+    if (file == null)
+      return AwesomeDialog(
+          context: context, title: "Hey", body: Text("Upload image"))
+        ..show();
     if (formstate.currentState!.validate()) {
       loading = true;
       setState(() {});
-      var res = await _crud.postReq(linkAdd, {
-        "title": title.text,
-        "content": content.text,
-        "userid": sharedPreferences.getString("id")
-      });
+      var res = await _crud.postReqFile(
+          linkAdd,
+          {
+            "title": title.text,
+            "content": content.text,
+            "userid": sharedPreferences.getString("id")
+          },
+          file!);
       loading = false;
       setState(() {});
       if (res['status'] == "Success") {
@@ -65,11 +77,61 @@ class _addNotesState extends State<addNotes> {
                       hint: 'Add content',
                       mycontroller: content,
                       validator: (val) {
-                       return validInput(val!, 2, 200);
+                        return validInput(val!, 2, 200);
                       },
                     ),
                     Container(
                       height: 10,
+                    ),
+                    MaterialButton(
+                      onPressed: () async {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                                  height: 100,
+                                  child: Column(
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          XFile? xfile = await ImagePicker()
+                                              .pickImage(
+                                                  source: ImageSource.gallery);
+                                          Navigator.of(context).pop();
+                                          file = File(xfile!.path);
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(" from Galary"),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          XFile? xfile = await ImagePicker()
+                                              .pickImage(
+                                                  source: ImageSource.camera);
+                                          Navigator.of(context).pop();
+                                          file = File(xfile!.path);
+                                          setState(() {
+
+                                          });
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(10),
+                                          child: Text("from Camera"),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ));
+                      },
+                      child: Text("choose image"),
+                      textColor: Colors.white,
+                      color: file == null ? Colors.grey : Colors.lightBlue,
                     ),
                     MaterialButton(
                       onPressed: () async {

@@ -1,17 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:noteapp/component/crud.dart';
 import 'package:noteapp/constant/linkapi.dart';
+import 'package:noteapp/model/noteModel.dart';
 
 class cardnote extends StatelessWidget {
   cardnote(
       {Key? key,
       required this.ontap,
-      required this.title,
-      required this.content, required this.ondelete})
+      required this.note,
+      required this.ondelete})
       : super(key: key);
   final void Function()? ontap;
-  final String title;
-  final String content;
+  final Note note;
   final void Function()? ondelete;
   crud _crud=crud();
 
@@ -25,17 +27,19 @@ class cardnote extends StatelessWidget {
           children: [
             Expanded(
                 flex: 1,
-                child: Image.network(
-                  "https://icons-for-free.com/iconfiles/png/512/cloud+upload+file+storage+upload+icon-1320190558968694328.png",
+                child: Image.file(
+                  File("$linkImage/${note.notesImg}"),
+                 // "$linkImage/${note.notesImg}",
                   width: 100,
                   height: 100,
                   fit: BoxFit.fill,
+
                 )),
             Expanded(
                 flex: 2,
                 child: ListTile(
-                  title: Text("$title"),
-                  subtitle: Text("$content"),
+                  title: Text("${note.notesTitle}"),
+                  subtitle: Text("${note.notesContent}"),
                   trailing: IconButton(
                     icon:Icon(Icons.delete,color: Colors.red,) ,
                     onPressed: ondelete
